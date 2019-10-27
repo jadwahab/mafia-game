@@ -20,25 +20,27 @@ class Main extends Component {
       cookie: "",
       page_state: PAGE_STATE.home,
       nickname: "",
-      room_name: ""
+      room_name: "",
+      room_id: "",
     };
   }
-  componentDidMount() {
-    const cookies = new Cookies();
 
-    if (!cookies.get("master_cookie")) {
-      let cookie = randomstring.generate(7);
-      cookies.set("master_cookie", `${cookie}`, { path: "/", maxAge: 3600 });
-      this.setState({ cookie });
-    }
-  }
+  // componentDidMount() {
+  //   const cookies = new Cookies();
+
+  //   if (!cookies.get("master_cookie")) {
+  //     let cookie = randomstring.generate(7);
+  //     cookies.set("master_cookie", `${cookie}`, { path: "/", maxAge: 3600 });
+  //     this.setState({ cookie });
+  //   }
+  // }
 
   handlePageChange = state => {
     this.setState({ page_state: state });
   };
 
-  handleEnterRoom = (nn, rn) => {
-    this.setState({ nickname: nn, room_name: rn });
+  handleEnterRoom = (nn, rn, rid) => {
+    this.setState({ nickname: nn, room_name: rn, room_id: rid });
     this.handlePageChange(PAGE_STATE.room);
   };
 
@@ -66,6 +68,7 @@ class Main extends Component {
             handleEnterGame={this.handleEnterGame}
             nickn={this.state.nickname}
             roomn={this.state.room_name}
+            roomid={this.state.room_id}
           />
         );
 

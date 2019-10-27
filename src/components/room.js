@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import { Container, Table, Header, Image, Button } from "semantic-ui-react";
+import axios from "axios";
+
+const GET_ROOM_PATH = "http://localhost:8888/mafia/get_room_by_id.php";
 
 class Room extends Component {
   constructor(props) {
@@ -7,14 +10,42 @@ class Room extends Component {
     this.state = {
       nickname: this.props.nickn,
       room_name: this.props.roomn,
-      array: ["player1", "player2", "player3"]
+      room_id: this.props.roomid,
+      // array: ["player1", "player2", "player3"],
+      users: []
     };
     // this.handleButtonJoinRoom = this.handleButtonJoinRoom.bind(this); // remove if nothing wrong
+  }
+
+  async componentDidMount() {
+
+    console.log(this.state.room_name);
+    
+    try {
+      const result = await axios.get(`${GET_ROOM_PATH}`, {
+        params: {
+          room_name: this.state.room_name
+        }
+      })
+  
+      console.log("SQL result GET ROOM");
+      console.log(result);
+
+      this.setState({
+        users: result.data.data
+      });
+
+    } catch (error) {
+      // TODO: send warning to user
+      console.log("SQL error");
+      console.log(error);
+    }
   }
 
   handleHomeButton = () => {
     this.props.handlePageChange("home");
   };
+
   handleStartButton = () => {
     this.props.handlePageChange("game");
   };
@@ -40,7 +71,7 @@ class Room extends Component {
           </Table.Header>
 
           <Table.Body>
-            {this.state.array.map(player => (
+            {this.state.users.map(player => (
               <Table.Row>
                 <Table.Cell>
                   <Header as="h4" image>
@@ -49,7 +80,7 @@ class Room extends Component {
                       rounded
                       size="mini"
                     />
-                    <Header.Content>{player}</Header.Content>
+                    <Header.Content>{player.nickname}</Header.Content>
                   </Header>
                 </Table.Cell>
               </Table.Row>

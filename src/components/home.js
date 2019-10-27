@@ -2,58 +2,114 @@ import React, { Component } from "react";
 import { Button, Divider, Input, Label, Form, Grid } from "semantic-ui-react";
 import PropTypes from "prop-types";
 import axios from "axios";
+import Cookies from "universal-cookie";
 var generate = require("project-name-generator");
 
 const CREATE_ROOM_PATH = "http://localhost:8888/mafia/create-rooms.php";
+const GET_ROOM_PATH = "http://localhost:8888/mafia/get_room_by_id.php";
+const ADD_USER_PATH = "http://localhost:8888/mafia/add_user_to_room.php";
 
 class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
       nickname: this.props.nickn,
-      room_name: this.props.roomn
+      room_name: this.props.roomn,
+      room_id: this.props.roomid
     };
     this.handleButtonJoinRoom = this.handleButtonJoinRoom.bind(this); // remove if nothing wrong
   }
 
-  handleButtonCreateRoom() {
-    let room_name = generate().dashed;
-
-    // callback on setstate in order to reuse state right after setting it
-    this.setState({ room_name }, () => {
-      console.log(room_name);
-
-      axios({
-        method: "get",
-        url: `${CREATE_ROOM_PATH}`,
-        withCredentials: true,
-        headers: {
-          "content-type": "text/plain"
-        },
+  handleButtonJoinRoom = async () => {
+    try {
+      const result = await axios.get(`${ADD_USER_PATH}`, {
         params: {
-          room_name: room_name
+          room_name: this.state.room_name,
+          nickname: this.state.nickname
         }
       })
-        .then(result => {
-          console.log("SQL result");
-          console.log(result);
-        })
-        .catch(error => {
-          console.log("SQL error");
-          console.log(error);
-        });
-      this.props.handleEnterRoom(this.state.nickname, this.state.room_name);
-    });
-  }
+  
+      console.log("SQL result ADD USER");
+      console.log(result);
+      this.props.handleEnterRoom(this.state.nickname, this.state.room_name, result.data.room_id);
 
-  handleButtonJoinRoom() {
-    this.props.handleEnterRoom(this.state.nickname, this.state.room_name);
-  }
+    } catch (error) {
+      // TODO: send warning to user
+      console.log("SQL error");
+      console.log(error);
+    }
+
+    // try {
+    //   const result = await axios.get(`${CREATE_ROOM_PATH}`, {
+    //     params: {
+    //       room_name: this.state.room_name,
+    //       nickname: this.state.nickname
+    //     }
+    //   })
+  
+    //   console.log("SQL result CREATE ROOM");
+    //   console.log(result);
+  
+    //   const user_id = result.data.user_id
+    //   this.setState({ room_id: result.data.room_id });
+  
+    //   const cookies = new Cookies();
+  
+    //   if (!cookies.get("user_id")) {
+    //     cookies.set("user_id", `${user_id}`, { path: "/", maxAge: 3600 });
+    //   }
+  
+    //   this.setState({ this.state.room_name });
+
+    //   this.props.handleEnterRoom(this.state.nickname, this.state.room_name, result.data.room_id);
+
+    // } catch (error) {
+    //   // TODO: send warning to user
+    //   console.log("SQL error");
+    //   console.log(error);
+    // }
+
+  };
 
   handleChange = e => {
     this.setState({
       [e.target.name]: e.target.value
     });
+  };
+
+  handleButtonCreateRoom = async () => {
+    let room_name = generate().dashed;
+
+    try {
+      const result = await axios.get(`${CREATE_ROOM_PATH}`, {
+        params: {
+          room_name: room_name,
+          nickname: this.state.nickname
+        }
+      })
+  
+      console.log("SQL result CREATE ROOM");
+      console.log(result);
+  
+      const user_id = result.data.user_id
+      this.setState({ room_id: result.data.room_id });
+  
+      const cookies = new Cookies();
+  
+      if (!cookies.get("user_id")) {
+        cookies.set("user_id", `${user_id}`, { path: "/", maxAge: 3600 });
+      }
+  
+      this.setState({ room_name });
+
+      this.props.handleEnterRoom(this.state.nickname, this.state.room_name, result.data.room_id);
+
+    } catch (error) {
+      // TODO: send warning to user
+      console.log("SQL error");
+      console.log(error);
+    }
+
   };
 
   render() {

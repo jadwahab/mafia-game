@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Image, Grid } from "semantic-ui-react";
+import { Image, Grid, Button, Divider } from "semantic-ui-react";
 
 class Game extends Component {
   constructor(props) {
@@ -45,6 +45,10 @@ class Game extends Component {
     }
   };
 
+  handleHomeButton = () => {
+    this.props.handlePageChange("home");
+  };
+
   render() {
     return (
       <Grid
@@ -53,7 +57,21 @@ class Game extends Component {
         verticalAlign="middle"
       >
         <Grid.Column style={{ maxWidth: 175 }}>
+          <Button
+            style={{ width: "150px" }}
+            content={"Home"}
+            onClick={this.handleHomeButton}
+          />
+          <Divider hidden />
+
           {this.displayCharacter(this.state.character)}
+          <Divider hidden />
+
+          <Button
+            style={{ width: "150px" }}
+            content={"Restart"}
+            onClick={this.handleRestartButton}
+          />
         </Grid.Column>
       </Grid>
     );

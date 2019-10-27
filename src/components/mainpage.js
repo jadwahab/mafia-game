@@ -1,3 +1,4 @@
+// not used but kept for reference when adding react router
 import React, { Component } from "react";
 import { Route, NavLink, HashRouter } from "react-router-dom";
 import Home from "./home";
